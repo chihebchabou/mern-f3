@@ -15,6 +15,7 @@ app.use(express.json()) // {"name": "Jhon Doe", "age":25}
 app.use(express.urlencoded({extended:false})); // name=John&age=25
 
 app.use('/api/contacts', require('./routes/contactRoutes'));
+app.use('/api/users', require('./routes/userRoutes'));
 
 app.use(errorHandler);
 

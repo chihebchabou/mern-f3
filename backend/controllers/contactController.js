@@ -1,4 +1,6 @@
 const asyncHandler = require('express-async-handler');
+const {validationResult} = require('express-validator')
+const Contact = require('../models/contactModel');
 const controller = {}
 
 /**
@@ -7,7 +9,8 @@ const controller = {}
  * @access Private
  */
 controller.getContacts = asyncHandler(async (req,res) => {
-  res.json({message: 'Get all contacts'})
+  const contacts = await Contact.find();
+  res.status(200).json(contacts);
 });
 
 /**
@@ -17,11 +20,22 @@ controller.getContacts = asyncHandler(async (req,res) => {
  */
 controller.setContact = asyncHandler(async (req,res) => {
   // console.log(req.body.name);
-  if (!req.body.name) {
+  // if (!req.body.name) {
+  //   res.status(400);
+  //   throw new Error('name is required');
+  // }
+
+  const errors = validationResult(req);
+  if(!errors.isEmpty()) {
     res.status(400);
-    throw new Error('name is required')
+    console.log(errors.array().map(error => error.msg).join('\n'));
+    throw new Error(errors.array().map(error => error.msg).join('\n'))
   }
-  res.json({message: 'Create new contact'})
+
+  const {name, email, phone, type} = req.body;
+
+  const contact = await Contact.create({name, email, phone, type})
+  res.status(201).json(contact);
 });
 
 /**
@@ -30,7 +44,17 @@ controller.setContact = asyncHandler(async (req,res) => {
  * @access Private
  */
 controller.updateContact = asyncHandler(async (req,res) => {
-  res.json({message: `Contact ${req.params.id} updated` })
+  const contact = await Contact.findById(req.params.id);
+
+  // Check if contact exists
+  if (!contact) {
+    res.status(400);
+    throw new Error('Contact not found')
+  }
+
+  const updatedContact = await Contact.findByIdAndUpdate(req.params.id, req.body, {new: true});
+
+  res.status(200).json(updatedContact);
 });
 
 /**
@@ -39,7 +63,16 @@ controller.updateContact = asyncHandler(async (req,res) => {
  * @access Private
  */
 controller.deleteContact = asyncHandler(async (req,res) => {
-  res.json({message: `Contact ${req.params.id} deleted` })
+  const contact = await Contact.findById(req.params.id);
+
+  // Check if contact exists
+  if (!contact) {
+    res.status(400);
+    throw new Error('Contact not found')
+  }
+
+  await Contact.findByIdAndRemove(req.params.id);
+  res.status(200).json({id: req.params.id });
 });
 
 // Export module
