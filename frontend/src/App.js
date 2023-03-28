@@ -4,6 +4,8 @@ import Navbar from './components/Navbar';
 import Dashboard from './pages/Dashboard';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import 'react-toastify/dist/ReactToastify.css';
+import { ToastContainer } from 'react-toastify';
 
 
 function App() {
@@ -21,6 +23,7 @@ function App() {
           </div>
         </div>
       </Router>
+      <ToastContainer />
     </Fragment>
   );
 }
